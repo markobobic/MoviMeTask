@@ -1,0 +1,12 @@
+2020-12-30 08:18:40,172 [10] INFO  MovieMe.Repository.ArtistRepository`1[[MovieMe.Models.Actor, MovieMe, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] [(null)] - getting all artist
+2020-12-30 13:43:31,661 [10] ERROR MovieMe.Repository.GenericRepository`1[[MovieMe.Models.Film, MovieMe, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] [(null)] - Error for SaveChanges: 
+System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   at System.Data.Entity.Internal.InternalContext.SaveChangesAsync(CancellationToken cancellationToken)
+   at System.Data.Entity.Internal.LazyInternalContext.SaveChangesAsync(CancellationToken cancellationToken)
+   at System.Data.Entity.DbContext.SaveChangesAsync(CancellationToken cancellationToken)
+   at System.Data.Entity.DbContext.SaveChangesAsync()
+   at MovieMe.Repository.GenericRepository`1.<SaveAsync>d__12.MoveNext() in C:\Users\marko\source\repos\MovieMe\MovieMe\Repository\GenericRepository.cs:line 109
+2020-12-30 13:44:37,353 [11] ERROR MovieMe.Controllers.FilmController [(null)] - The DateOfRelese field is required. | The IMDBRating field is required. | You must provide movie amount | You must provide furniture price | The Name field is required.
+2020-12-30 13:45:12,069 [11] ERROR MovieMe.Controllers.FilmController [(null)] - The DateOfRelese field is required. | The IMDBRating field is required. | You must provide movie amount | You must provide furniture price | The Name field is required.
+2020-12-30 13:51:04,330 [12] ERROR MovieMe.Controllers.FilmController [(null)] - The DateOfRelese field is required. | The IMDBRating field is required. | You must provide movie amount | You must provide furniture price | The Name field is required.
+2020-12-30 13:51:47,350 [11] ERROR MovieMe.Controllers.FilmController [(null)] - The DateOfRelese field is required. | The IMDBRating field is required. | You must provide movie amount | You must provide furniture price | The Name field is required.

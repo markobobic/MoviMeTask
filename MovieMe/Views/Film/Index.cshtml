@@ -1,0 +1,253 @@
+﻿<head>
+    <link rel="stylesheet" href="~/Content/DataTable.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href=" https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="~/Content/DataTableFilms.css" />
+</head>
+<br />
+<br />
+<div class="modal fade" id="modalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="mTitle">Film</h4>
+                <button id="close-modal" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<a class="btn btn-success" style="margin-left:-15px;color:white" data-toggle="modal"
+   data-target="#modalAdd"
+   onclick="PopupForm('@Url.Action("Add","Film")')"><i class="fa fa-plus"></i> Add Film </a>
+<div id="user_content"></div>
+<div class="row">
+    <div class="table-responsive">
+        <table id="filmsTable" width="100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Genre</th>
+                    <th>Director</th>
+                    <th>Producer</th>
+                    <th>Actors</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Relese</th>
+                    <th>IMDB Rating</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="table table-bordered"></tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
+    <script src="https://rawgit.com/makeusabrew/bootbox/f3a04a57877cab071738de558581fbc91812dce9/bootbox.js"></script>
+
+    <script>
+  $(document).ready(function () {
+    dataTable = $("#filmsTable").DataTable({
+        "processing": true,
+        "ajax": {
+            "url": "/Film/GetData/",
+            "type": "GET",
+            "datatype": "json",
+            "dataSrc": ""
+        },
+        "columns": [
+            { 'data': 'id', defaultContent: '' },
+            { "data": "Name", "searchable": false },
+            { "data": "GenreName", "searchable": false },
+            { "data": "DirectorName", "searchable": false },
+            { "data": "ProducerName", "searchable": false },
+            {
+                "data": 'Actors',
+                "render": function (value, type, row, meta) {
+                    var output = "";
+                    for (var i = 0; i < value.length; i++) {
+                        output += value[i];
+                        if (i < value.length - 1) {
+                            output += ", ";
+                        }
+                    }
+                    return output;
+                }
+            },
+            { "data": "Price", "searchable": false },
+            { "data": "Amount", "searchable": false },
+            { "data": "Description", "searchable": false },
+            {
+                "data": "DateOfRelese", render: function (data) {
+                    return moment(data).format("DD.MM.YYYY.")
+                }
+            },
+            { "data": "IMDBRating", "searchable": false },
+            {
+                "data": "Id", "width": "22%", sortable: false, render: function (data) {
+
+                    return "<a class='btn btn-outline-info btn-block btn-sm'" +
+                                    "data-toggle='modal' data-target='#modalAdd'onclick=PopupForm('/Film/Update/" +
+                                data + "')><i class='far fa-edit'></i>Update</a><a class='btn btn-outline-success btn-block btn-sm'"  +
+                        "onclick=Delete(" + data + ")><i class='fa fa-trash'></i> Delete</a ><a class='btn btn-outline-success btn-block btn-sm'" +
+                        "onclick=Buy(" + data +")><i class='far fa-money-bill-alt'></i> Buy</a >";
+                }
+            }
+        ],
+        "lengthMenu": [[10, 50, 100, 200, 300], [10, 50, 100, 200, 300]
+        ],
+        "responsive": true,
+        "dom": 'Bfrtlip',
+        initComplete: function () {
+            let btns = $('.paginate_button');
+            btns.addClass('btn btn-info btn-sm');
+            btns.removeClass('paginate_button');
+            let searchButton = $("input[type='search']");
+            searchButton.addClass('form-control');
+            searchButton.attr("placeholder", "Search..");
+        },
+        "columnDefs": [
+            {
+                "searchable": false,
+                "orderable": false,
+                "targets": 0
+            },
+        ],
+        "language": {
+            search: "",
+            "emptyTable": "No data found"
+        },
+        "responsive": "true"
+    });
+
+    dataTable.on('order.dt search.dt', function () {
+        dataTable.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+            cell.innerHTML = i + 1;
+        });
+    }).draw();
+
+    dataTable.columns().every(function () {
+        var datatableColumn = this;
+
+        $(this.footer()).find('input').on('keyup change', function () {
+            datatableColumn.search(this.value).draw();
+        });
+    })
+
+});
+
+        function PopupForm(url) {
+
+            var formDiv = $('.modal-body');
+            $.get(url)
+                .done(function (response) {
+                    var modal = $(this);
+                    formDiv.html(response);
+                });
+        }
+        function SubmitForm(form) {
+            $.validator.unobtrusive.parse(form);
+            if ($(form).valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: form.action,
+                    data: $(form).serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            document.getElementById('close-modal').click();
+                            dataTable.ajax.reload();
+                        }
+                    }
+                });
+            }
+            return false;
+        }
+        function Buy(id) {
+            var promptOptions = {
+                title: "Enter quantity",
+                buttons: {
+                    confirm: {
+                        label: "Save"
+                    }
+                },
+                callback: function (result) {
+                    if (result === null) {
+                        console.log("Prompt dismissed");
+                    } else {
+                        post('/Bill/GenerateBill/', { FilmId: id, Quantity: result });
+                    }
+                }
+            };
+            bootbox.prompt(promptOptions);
+        }
+
+        function post(path, params, method = 'post') {
+
+            // The rest of this code assumes you are not using a library.
+            // It can be made less wordy if you use one.
+            const form = document.createElement('form');
+            form.method = method;
+            form.action = path;
+
+            for (const key in params) {
+                if (params.hasOwnProperty(key)) {
+                    const hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = key;
+                    hiddenField.value = params[key];
+
+                    form.appendChild(hiddenField);
+                }
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+
+            function Delete(id) {
+                bootbox.confirm({
+                    message: "Are you sure you want to delete?",
+                    buttons: {
+                        cancel: {
+                            label: 'No',
+                            className: 'bot-box-button-decline'
+                        },
+                        confirm: {
+                            label: 'Yes',
+                            className: 'bot-box-button'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("Delete", "Film")/' + id,
+                                success: function (data) {
+                                    if (data.success) {
+                                        dataTable.ajax.reload();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
+
+
+    </script>
+
+
+}
